@@ -28,28 +28,28 @@ NUMERIC_OPTIONS = [
 ]
 
 # ----------------------------------------------------------------------------
-# Unified color palette (used across CSS + all Plotly charts)
+# Unified color palette - تصميم جديد ومريح
 # ----------------------------------------------------------------------------
 COLORS = {
-    "primary": "#6C63FF",       # indigo/violet - brand
-    "primary_dark": "#4C46B6",
-    "primary_light": "#EEEDFF",
-    "accent": "#14B8A6",        # teal
-    "accent_light": "#E6FBF8",
-    "success": "#22C55E",
-    "success_light": "#EAFBF0",
-    "warning": "#F59E0B",       # amber
-    "warning_light": "#FFF6E5",
-    "bg": "#F6F6FB",
+    "primary": "#5B6ABF",          # أزرق/نيلي ناعم
+    "primary_dark": "#3F4A8F",
+    "primary_light": "#E8ECF8",
+    "accent": "#F9A8A4",           # مرجاني دافئ
+    "accent_light": "#FEF0EE",
+    "success": "#34D399",          # زمردي
+    "success_light": "#ECFDF5",
+    "warning": "#FBBF24",          # كهرماني
+    "warning_light": "#FEF3C7",
+    "bg": "#F8FAFC",               # رمادي فاتح جداً
     "surface": "#FFFFFF",
-    "border": "#E6E6F2",
-    "text": "#232347",
-    "text_muted": "#6B7280",
+    "border": "#E2E8F0",
+    "text": "#1E293B",
+    "text_muted": "#64748B",
 }
 
-# Harmonious categorical sequence for Plotly charts (built around the brand colors)
-CHART_SEQUENCE = ["#6C63FF", "#14B8A6", "#F59E0B", "#EC6FA1", "#3B82F6", "#A78BFA"]
-CHART_DIVERGING = [[0, "#14B8A6"], [0.5, "#F6F6FB"], [1, "#6C63FF"]]
+# سلاسل ألوان متوافقة مع التصميم الجديد
+CHART_SEQUENCE = ["#5B6ABF", "#F9A8A4", "#FBBF24", "#34D399", "#A78BFA", "#F472B6"]
+CHART_DIVERGING = [[0, "#34D399"], [0.5, "#F8FAFC"], [1, "#5B6ABF"]]
 
 px.defaults.color_discrete_sequence = CHART_SEQUENCE
 px.defaults.template = "plotly_white"
@@ -65,7 +65,7 @@ st.set_page_config(
 )
 
 # ----------------------------------------------------------------------------
-# Styling
+# Styling - كود CSS المحدّث
 # ----------------------------------------------------------------------------
 st.markdown(
     f"""
@@ -87,160 +87,220 @@ st.markdown(
         --text-muted: {COLORS["text_muted"]};
     }}
 
-    .stApp {{ background-color: var(--bg); }}
-
-    h1, h2, h3, h4, h5, p, span, label, div {{ color: var(--text); }}
-
-    /* ---- Hero header ---- */
-    .hero {{
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        border-radius: 20px;
-        padding: 40px 36px;
-        color: white !important;
-        margin-bottom: 1.8rem;
-        box-shadow: 0 12px 28px rgba(108, 99, 255, 0.22);
+    /* خلفية التطبيق */
+    .stApp {{
+        background-color: var(--bg);
     }}
-    .hero h1, .hero p {{ color: white !important; }}
+
+    /* النصوص */
+    h1, h2, h3, h4, h5, p, span, label, div {{
+        color: var(--text);
+    }}
+
+    /* الهيدر الرئيسي - تدرج ناعم */
+    .hero {{
+        background: linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 24px;
+        padding: 48px 40px;
+        color: white !important;
+        margin-bottom: 2rem;
+        box-shadow: 0 16px 40px rgba(91, 106, 191, 0.25);
+        transition: box-shadow 0.3s ease;
+    }}
+    .hero:hover {{
+        box-shadow: 0 20px 48px rgba(91, 106, 191, 0.35);
+    }}
+    .hero h1, .hero p {{
+        color: white !important;
+    }}
     .hero h1 {{
-        font-size: 2.3rem;
+        font-size: 2.4rem;
         font-weight: 800;
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
     }}
     .hero p {{
-        font-size: 1.05rem;
-        opacity: 0.94;
+        font-size: 1.1rem;
+        opacity: 0.92;
         max-width: 720px;
         margin: 0;
+        line-height: 1.6;
     }}
 
-    /* ---- Section titles ---- */
+    /* عناوين الأقسام */
     .section-title {{
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        margin: 0.6rem 0 1rem 0;
+        margin: 0.8rem 0 1.2rem 0;
         color: var(--text);
-        border-left: 5px solid var(--primary);
-        padding-left: 10px;
+        border-left: 6px solid var(--primary);
+        padding-left: 14px;
     }}
 
-    /* ---- Cards ---- */
+    /* البطاقات - ظلال ناعمة وزوايا دائرية */
     .card {{
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 2px 10px rgba(108, 99, 255, 0.06);
+        border-radius: 20px;
+        padding: 24px 20px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
         height: 100%;
-        transition: box-shadow 0.2s ease, transform 0.2s ease;
+        transition: all 0.2s ease;
     }}
     .card:hover {{
-        box-shadow: 0 8px 20px rgba(108, 99, 255, 0.14);
-        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(91, 106, 191, 0.10);
+        transform: translateY(-3px);
+        border-color: var(--primary-light);
     }}
     .card h4 {{
         margin-top: 0;
-        margin-bottom: 6px;
-        font-size: 1.05rem;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
         color: var(--primary-dark);
     }}
     .card p {{
         color: var(--text-muted);
-        font-size: 0.92rem;
+        font-size: 0.95rem;
         margin-bottom: 0;
+        line-height: 1.5;
     }}
 
-    /* ---- Badges ---- */
+    /* الشارات */
     .badge {{
         display: inline-block;
-        padding: 4px 12px;
+        padding: 4px 14px;
         border-radius: 999px;
-        font-size: 0.78rem;
-        font-weight: 700;
-        margin-bottom: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        margin-bottom: 10px;
+        background: var(--primary-light);
+        color: var(--primary-dark);
     }}
-    .badge-best {{ background: var(--success-light); color: #15803d; border: 1px solid var(--success); }}
+    .badge-best {{
+        background: var(--success-light);
+        color: #0B7B3E;
+        border: 1px solid var(--success);
+    }}
 
-    /* ---- Result boxes ---- */
+    /* مربعات النتيجة */
     .result-box {{
-        border-radius: 16px;
-        padding: 22px;
-        margin-top: 16px;
+        border-radius: 20px;
+        padding: 24px;
+        margin-top: 20px;
         font-size: 1.05rem;
+        line-height: 1.6;
     }}
     .healthy {{
         background: var(--success-light);
         border: 1px solid var(--success);
-        color: #15803d;
+        color: #0B7B3E;
     }}
     .risk {{
         background: var(--warning-light);
         border: 1px solid var(--warning);
-        color: #b45309;
+        color: #92400E;
     }}
     .disclaimer {{
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         color: var(--text-muted);
-        margin-top: 6px;
+        margin-top: 8px;
     }}
 
-    /* ---- Metric cards (Streamlit native) ---- */
+    /* بطاقات المقاييس الأصلية في Streamlit */
     div[data-testid="stMetric"] {{
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 14px 16px;
-        box-shadow: 0 2px 8px rgba(108, 99, 255, 0.05);
+        border-radius: 16px;
+        padding: 16px 18px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        transition: box-shadow 0.2s;
     }}
-    div[data-testid="stMetricValue"] {{ color: var(--primary-dark); }}
-
-    /* ---- Tabs ---- */
-    .stTabs [data-baseweb="tab-list"] {{ gap: 6px; }}
-    .stTabs [data-baseweb="tab"] {{
-        background-color: var(--primary-light);
-        border-radius: 10px 10px 0 0;
+    div[data-testid="stMetric"]:hover {{
+        box-shadow: 0 6px 16px rgba(91, 106, 191, 0.08);
+    }}
+    div[data-testid="stMetricValue"] {{
         color: var(--primary-dark);
         font-weight: 600;
-        padding: 8px 16px;
+    }}
+
+    /* التبويبات */
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 4px;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        background-color: var(--primary-light);
+        border-radius: 12px 12px 0 0;
+        color: var(--primary-dark);
+        font-weight: 600;
+        padding: 10px 20px;
+        border: 1px solid transparent;
+        border-bottom: none;
+        transition: all 0.2s;
+    }}
+    .stTabs [data-baseweb="tab"]:hover {{
+        background-color: #D6DEF5;
     }}
     .stTabs [aria-selected="true"] {{
         background-color: var(--primary) !important;
         color: white !important;
+        border-color: var(--primary);
     }}
 
-    /* ---- Buttons ---- */
+    /* الأزرار */
     .stButton > button, .stFormSubmitButton > button {{
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        background: linear-gradient(145deg, var(--primary) 0%, var(--primary-dark) 100%);
         color: white;
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
         font-weight: 600;
-        padding: 0.5rem 1.2rem;
-        transition: opacity 0.2s ease;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(91, 106, 191, 0.25);
     }}
-    .stButton > button:hover, .stFormSubmitButton > button:hover {{ opacity: 0.9; color: white; }}
+    .stButton > button:hover, .stFormSubmitButton > button:hover {{
+        opacity: 0.92;
+        transform: scale(1.02);
+        box-shadow: 0 6px 18px rgba(91, 106, 191, 0.35);
+        color: white;
+    }}
 
-    /* ---- Sidebar ---- */
+    /* الشريط الجانبي - تدرج غامق ناعم */
     section[data-testid="stSidebar"] {{
-        background: linear-gradient(180deg, #2A2566 0%, #1E1B4B 100%);
+        background: linear-gradient(180deg, #2D3A6B 0%, #1E2A4F 100%);
+        border-right: 1px solid rgba(255,255,255,0.05);
     }}
     section[data-testid="stSidebar"] * {{
-        color: #EDEBFF !important;
+        color: #EDF2F7 !important;
     }}
-    section[data-testid="stSidebar"] hr {{ border-color: rgba(255,255,255,0.15); }}
+    section[data-testid="stSidebar"] hr {{
+        border-color: rgba(255,255,255,0.12);
+    }}
     section[data-testid="stSidebar"] div[role="radiogroup"] label {{
-        border-radius: 10px;
-        padding: 6px 10px;
-        margin-bottom: 2px;
+        border-radius: 12px;
+        padding: 8px 14px;
+        margin-bottom: 4px;
         transition: background 0.15s ease;
+        font-weight: 500;
     }}
     section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {{
-        background: rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.10);
+    }}
+    section[data-testid="stSidebar"] div[role="radiogroup"] label[data-selected="true"] {{
+        background: rgba(255,255,255,0.15);
+        box-shadow: inset 0 0 0 2px var(--accent);
+    }}
+
+    /* جداول البيانات */
+    .stDataFrame {{
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border);
     }}
     </style>
     """,
     unsafe_allow_html=True,
 )
-
 
 # ----------------------------------------------------------------------------
 # Data / model loading (with error handling)
