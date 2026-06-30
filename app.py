@@ -28,6 +28,33 @@ NUMERIC_OPTIONS = [
 ]
 
 # ----------------------------------------------------------------------------
+# Unified color palette (used across CSS + all Plotly charts)
+# ----------------------------------------------------------------------------
+COLORS = {
+    "primary": "#6C63FF",       # indigo/violet - brand
+    "primary_dark": "#4C46B6",
+    "primary_light": "#EEEDFF",
+    "accent": "#14B8A6",        # teal
+    "accent_light": "#E6FBF8",
+    "success": "#22C55E",
+    "success_light": "#EAFBF0",
+    "warning": "#F59E0B",       # amber
+    "warning_light": "#FFF6E5",
+    "bg": "#F6F6FB",
+    "surface": "#FFFFFF",
+    "border": "#E6E6F2",
+    "text": "#232347",
+    "text_muted": "#6B7280",
+}
+
+# Harmonious categorical sequence for Plotly charts (built around the brand colors)
+CHART_SEQUENCE = ["#6C63FF", "#14B8A6", "#F59E0B", "#EC6FA1", "#3B82F6", "#A78BFA"]
+CHART_DIVERGING = [[0, "#14B8A6"], [0.5, "#F6F6FB"], [1, "#6C63FF"]]
+
+px.defaults.color_discrete_sequence = CHART_SEQUENCE
+px.defaults.template = "plotly_white"
+
+# ----------------------------------------------------------------------------
 # Page config
 # ----------------------------------------------------------------------------
 st.set_page_config(
@@ -41,95 +68,174 @@ st.set_page_config(
 # Styling
 # ----------------------------------------------------------------------------
 st.markdown(
-    """
+    f"""
     <style>
-    .stApp { background-color: #fafafa; }
+    :root {{
+        --primary: {COLORS["primary"]};
+        --primary-dark: {COLORS["primary_dark"]};
+        --primary-light: {COLORS["primary_light"]};
+        --accent: {COLORS["accent"]};
+        --accent-light: {COLORS["accent_light"]};
+        --success: {COLORS["success"]};
+        --success-light: {COLORS["success_light"]};
+        --warning: {COLORS["warning"]};
+        --warning-light: {COLORS["warning_light"]};
+        --bg: {COLORS["bg"]};
+        --surface: {COLORS["surface"]};
+        --border: {COLORS["border"]};
+        --text: {COLORS["text"]};
+        --text-muted: {COLORS["text_muted"]};
+    }}
 
-    .hero {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    .stApp {{ background-color: var(--bg); }}
+
+    h1, h2, h3, h4, h5, p, span, label, div {{ color: var(--text); }}
+
+    /* ---- Hero header ---- */
+    .hero {{
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border-radius: 20px;
         padding: 40px 36px;
-        color: white;
+        color: white !important;
         margin-bottom: 1.8rem;
-        box-shadow: 0 10px 30px rgba(79, 70, 229, 0.25);
-    }
-    .hero h1 {
+        box-shadow: 0 12px 28px rgba(108, 99, 255, 0.22);
+    }}
+    .hero h1, .hero p {{ color: white !important; }}
+    .hero h1 {{
         font-size: 2.3rem;
         font-weight: 800;
         margin-bottom: 0.4rem;
-    }
-    .hero p {
+    }}
+    .hero p {{
         font-size: 1.05rem;
-        opacity: 0.92;
+        opacity: 0.94;
         max-width: 720px;
         margin: 0;
-    }
+    }}
 
-    .section-title {
+    /* ---- Section titles ---- */
+    .section-title {{
         font-size: 1.4rem;
         font-weight: 700;
         margin: 0.6rem 0 1rem 0;
-        color: #1f2937;
-    }
+        color: var(--text);
+        border-left: 5px solid var(--primary);
+        padding-left: 10px;
+    }}
 
-    .card {
-        background: white;
-        border: 1px solid #e5e7eb;
+    /* ---- Cards ---- */
+    .card {{
+        background: var(--surface);
+        border: 1px solid var(--border);
         border-radius: 16px;
         padding: 20px;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        box-shadow: 0 2px 10px rgba(108, 99, 255, 0.06);
         height: 100%;
-    }
-    .card h4 {
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }}
+    .card:hover {{
+        box-shadow: 0 8px 20px rgba(108, 99, 255, 0.14);
+        transform: translateY(-2px);
+    }}
+    .card h4 {{
         margin-top: 0;
         margin-bottom: 6px;
         font-size: 1.05rem;
-        color: #111827;
-    }
-    .card p {
-        color: #6b7280;
+        color: var(--primary-dark);
+    }}
+    .card p {{
+        color: var(--text-muted);
         font-size: 0.92rem;
         margin-bottom: 0;
-    }
+    }}
 
-    .badge {
+    /* ---- Badges ---- */
+    .badge {{
         display: inline-block;
         padding: 4px 12px;
         border-radius: 999px;
         font-size: 0.78rem;
         font-weight: 700;
         margin-bottom: 8px;
-    }
-    .badge-best { background: #ecfdf5; color: #065f46; border: 1px solid #10b981; }
+    }}
+    .badge-best {{ background: var(--success-light); color: #15803d; border: 1px solid var(--success); }}
 
-    .result-box {
+    /* ---- Result boxes ---- */
+    .result-box {{
         border-radius: 16px;
         padding: 22px;
         margin-top: 16px;
         font-size: 1.05rem;
-    }
-    .healthy {
-        background: #ecfdf5;
-        border: 1px solid #10b981;
-        color: #065f46;
-    }
-    .risk {
-        background: #fff7ed;
-        border: 1px solid #f97316;
-        color: #9a3412;
-    }
-    .disclaimer {
+    }}
+    .healthy {{
+        background: var(--success-light);
+        border: 1px solid var(--success);
+        color: #15803d;
+    }}
+    .risk {{
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        color: #b45309;
+    }}
+    .disclaimer {{
         font-size: 0.82rem;
-        color: #9ca3af;
-        margin-top: 4px;
-    }
+        color: var(--text-muted);
+        margin-top: 6px;
+    }}
 
-    section[data-testid="stSidebar"] {
-        background-color: #111827;
-    }
-    section[data-testid="stSidebar"] * {
-        color: #f3f4f6 !important;
-    }
+    /* ---- Metric cards (Streamlit native) ---- */
+    div[data-testid="stMetric"] {{
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: 0 2px 8px rgba(108, 99, 255, 0.05);
+    }}
+    div[data-testid="stMetricValue"] {{ color: var(--primary-dark); }}
+
+    /* ---- Tabs ---- */
+    .stTabs [data-baseweb="tab-list"] {{ gap: 6px; }}
+    .stTabs [data-baseweb="tab"] {{
+        background-color: var(--primary-light);
+        border-radius: 10px 10px 0 0;
+        color: var(--primary-dark);
+        font-weight: 600;
+        padding: 8px 16px;
+    }}
+    .stTabs [aria-selected="true"] {{
+        background-color: var(--primary) !important;
+        color: white !important;
+    }}
+
+    /* ---- Buttons ---- */
+    .stButton > button, .stFormSubmitButton > button {{
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 0.5rem 1.2rem;
+        transition: opacity 0.2s ease;
+    }}
+    .stButton > button:hover, .stFormSubmitButton > button:hover {{ opacity: 0.9; color: white; }}
+
+    /* ---- Sidebar ---- */
+    section[data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, #2A2566 0%, #1E1B4B 100%);
+    }}
+    section[data-testid="stSidebar"] * {{
+        color: #EDEBFF !important;
+    }}
+    section[data-testid="stSidebar"] hr {{ border-color: rgba(255,255,255,0.15); }}
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {{
+        border-radius: 10px;
+        padding: 6px 10px;
+        margin-bottom: 2px;
+        transition: background 0.15s ease;
+    }}
+    section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {{
+        background: rgba(255,255,255,0.08);
+    }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -203,26 +309,49 @@ def prediction_label(prediction: int) -> str:
     return "Probable Depression" if prediction == 1 else "Healthy"
 
 
+def style_fig(fig: go.Figure) -> go.Figure:
+    """Apply a consistent, eye-friendly look to any Plotly figure."""
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font={"color": COLORS["text"], "family": "sans-serif"},
+        title={"font": {"color": COLORS["text"], "size": 16}},
+        legend={"bgcolor": "rgba(0,0,0,0)"},
+        margin=dict(t=55, b=30, l=10, r=10),
+    )
+    fig.update_xaxes(gridcolor=COLORS["border"], zerolinecolor=COLORS["border"])
+    fig.update_yaxes(gridcolor=COLORS["border"], zerolinecolor=COLORS["border"])
+    return fig
+
+
 def gauge_figure(probability: float, prediction: int) -> go.Figure:
-    color = "#f97316" if prediction == 1 else "#10b981"
+    bar_color = COLORS["warning"] if prediction == 1 else COLORS["accent"]
     fig = go.Figure(
         go.Indicator(
             mode="gauge+number",
             value=probability * 100,
-            number={"suffix": "%", "font": {"size": 36}},
+            number={"suffix": "%", "font": {"size": 36, "color": COLORS["text"]}},
             gauge={
-                "axis": {"range": [0, 100], "tickwidth": 1},
-                "bar": {"color": color},
+                "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": COLORS["text_muted"]},
+                "bar": {"color": bar_color},
+                "bgcolor": COLORS["bg"],
+                "borderwidth": 1,
+                "bordercolor": COLORS["border"],
                 "steps": [
-                    {"range": [0, 40], "color": "#ecfdf5"},
-                    {"range": [40, 70], "color": "#fef3c7"},
-                    {"range": [70, 100], "color": "#fff1eb"},
+                    {"range": [0, 40], "color": COLORS["success_light"]},
+                    {"range": [40, 70], "color": COLORS["primary_light"]},
+                    {"range": [70, 100], "color": COLORS["warning_light"]},
                 ],
             },
-            title={"text": "Probability of Probable Depression"},
+            title={"text": "Probability of Probable Depression", "font": {"color": COLORS["text_muted"], "size": 14}},
         )
     )
-    fig.update_layout(height=280, margin=dict(l=20, r=20, t=50, b=10))
+    fig.update_layout(
+        height=280,
+        margin=dict(l=20, r=20, t=50, b=10),
+        paper_bgcolor="rgba(0,0,0,0)",
+        font={"color": COLORS["text"]},
+    )
     return fig
 
 
@@ -355,7 +484,7 @@ elif page == "EDA":
 
     with tab1:
         fig = px.histogram(df, x="Depression", color="Depression", title="Distribution of Depression Status")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(style_fig(fig), use_container_width=True)
         st.info(
             "The target variable is imbalanced, so model evaluation should rely on "
             "Recall, F1-score, and ROC-AUC in addition to Accuracy."
@@ -368,8 +497,9 @@ elif page == "EDA":
             fig = px.histogram(
                 df, x=selected_feature, nbins=30,
                 title=f"Distribution of {selected_feature}", marginal="box",
+                color_discrete_sequence=[COLORS["primary"]],
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(style_fig(fig), use_container_width=True)
         with c2:
             compare_feature = st.selectbox(
                 "Choose feature to compare with Depression", NUMERIC_OPTIONS, index=1, key="cmp_feat"
@@ -378,7 +508,7 @@ elif page == "EDA":
                 df, x="Depression", y=compare_feature, color="Depression",
                 title=f"{compare_feature} by Depression Status",
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(style_fig(fig), use_container_width=True)
 
     with tab3:
         cat_feature = st.selectbox("Choose categorical feature", ["Gender", "Department"])
@@ -386,14 +516,17 @@ elif page == "EDA":
             df, x=cat_feature, color="Depression", barmode="group",
             title=f"Depression Status by {cat_feature}",
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(style_fig(fig), use_container_width=True)
 
     with tab4:
         corr_cols = NUMERIC_OPTIONS + ["Depression"]
         corr_df = df[corr_cols].copy()
         corr_df["Depression"] = corr_df["Depression"].astype(int)
-        fig = px.imshow(corr_df.corr(), text_auto=".2f", aspect="auto", title="Correlation Heatmap")
-        st.plotly_chart(fig, use_container_width=True)
+        fig = px.imshow(
+            corr_df.corr(), text_auto=".2f", aspect="auto", title="Correlation Heatmap",
+            color_continuous_scale=CHART_DIVERGING,
+        )
+        st.plotly_chart(style_fig(fig), use_container_width=True)
 
 # ----------------------------------------------------------------------------
 # MODEL RESULTS
@@ -406,7 +539,7 @@ elif page == "Model Results":
         st.dataframe(
             metrics_df.style.highlight_max(
                 subset=[c for c in ["Accuracy", "Precision", "Recall", "F1-score", "ROC-AUC"] if c in metrics_df.columns],
-                color="#dcfce7",
+                color=COLORS["success_light"],
             ),
             use_container_width=True,
         )
@@ -421,7 +554,7 @@ elif page == "Model Results":
             melted, x="Model", y="Score", color="Metric", barmode="group",
             title="Model Comparison", range_y=[0, 1],
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(style_fig(fig), use_container_width=True)
     else:
         st.warning(f"Metrics file not found: `{METRICS_PATH.name}`.")
 
@@ -442,8 +575,11 @@ elif page == "Model Results":
                         estimator.feature_importances_,
                         index=getattr(estimator, "feature_names_in_", range(len(estimator.feature_importances_))),
                     ).sort_values(ascending=True)
-                    fig = px.bar(importances, orientation="h", title="Feature Importance")
-                    st.plotly_chart(fig, use_container_width=True)
+                    fig = px.bar(
+                        importances, orientation="h", title="Feature Importance",
+                        color_discrete_sequence=[COLORS["primary"]],
+                    )
+                    st.plotly_chart(style_fig(fig), use_container_width=True)
         except Exception:
             pass  # Importance display is a bonus, never block the page on it
 
