@@ -385,9 +385,15 @@ metrics_df = load_metrics()
 # =========================
 # Sidebar
 # =========================
-st.sidebar.markdown("# 🎓 Student AI")
-st.sidebar.markdown("A professional ML dashboard for student depression prediction.")
-st.sidebar.markdown("---")
+st.sidebar.markdown("# 🎓 Student Depression Prediction")
+
+st.sidebar.markdown(
+"""
+AI-powered prediction system
+
+Using Machine Learning to estimate depression risk based on academic performance, lifestyle, and behavioral factors.
+"""
+)
 
 page = st.sidebar.radio(
     "Navigation",
