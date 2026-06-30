@@ -389,7 +389,7 @@ st.sidebar.markdown("# Student Depression Prediction")
 
 st.sidebar.markdown(
 """
-Machine learning dashboard for predicting depression risk based on students' academic performance, lifestyle, and behavioral factors.
+Machine learning dashboard for predicting depression risk .
 """
 )
 
