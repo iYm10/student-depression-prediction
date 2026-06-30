@@ -1,17 +1,15 @@
-import joblib
+import json
 from pathlib import Path
 
+import joblib
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
-
 APP_DIR = Path(__file__).parent
-
 DATA_PATH = APP_DIR / "student_lifestyle_100k.csv"
-RESULTS_PATH = APP_DIR / "model_results.csv"
+METRICS_PATH = APP_DIR / "model_metrics.json"
 
 MODEL_FILES = {
     "Random Forest (Best Model)": "random_forest_model.pkl",
@@ -19,210 +17,281 @@ MODEL_FILES = {
     "Logistic Regression + PCA": "logistic_pca_model.pkl",
 }
 
-NUMERIC_OPTIONS = [
-    "Age",
-    "CGPA",
-    "Sleep_Duration",
-    "Study_Hours",
-    "Social_Media_Hours",
-    "Physical_Activity_Hours",
-    "Stress_Level",
-    "Lifestyle_Balance",
-    "Productive_Hours",
-    "Stress_Study",
-]
-
-COLOR_MAP = {
-    False: "#2563EB",
-    True: "#F97316",
-    "False": "#2563EB",
-    "True": "#F97316",
-}
-
-
 st.set_page_config(
     page_title="Student Depression Prediction",
-    page_icon="🧠",
+    page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-
 st.markdown(
     """
     <style>
-    .stApp {
-        background-color: #F8FAFC;
-        color: #1E293B;
-    }
-
-    .hero {
-        background: linear-gradient(135deg, #0F766E 0%, #2563EB 100%);
-        border-radius: 22px;
-        padding: 38px 36px;
-        color: white;
-        margin-bottom: 1.8rem;
-        box-shadow: 0 10px 28px rgba(15, 118, 110, 0.20);
-    }
-
-    .hero h1 {
-        font-size: 2.25rem;
+    .main-title {
+        font-size: 2.4rem;
         font-weight: 800;
-        margin-bottom: 0.5rem;
-        color: white !important;
+        margin-bottom: 0.2rem;
     }
-
-    .hero p {
+    .subtitle {
+        color: #6b7280;
         font-size: 1.05rem;
-        opacity: 0.95;
-        max-width: 760px;
-        margin: 0;
-        color: #F8FAFC !important;
+        margin-bottom: 1.5rem;
     }
-
-    .section-title {
-        font-size: 1.45rem;
-        font-weight: 800;
-        margin: 0.8rem 0 1rem 0;
-        color: #0F172A;
-    }
-
-    .card {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
+    .metric-card {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
         border-radius: 18px;
-        padding: 20px;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
-        height: 100%;
+        padding: 18px;
+        text-align: center;
     }
-
-    .card h4 {
-        margin-top: 0;
-        margin-bottom: 8px;
-        font-size: 1.05rem;
-        color: #0F172A;
-    }
-
-    .card p {
-        color: #475569;
-        font-size: 0.93rem;
-        margin-bottom: 0;
-        line-height: 1.55;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 5px 12px;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 800;
-        margin-bottom: 10px;
-    }
-
-    .badge-best {
-        background: #DCFCE7;
-        color: #166534;
-        border: 1px solid #22C55E;
-    }
-
     .result-box {
-        border-radius: 18px;
-        padding: 24px;
-        margin-top: 16px;
-        font-size: 1.05rem;
-        line-height: 1.6;
-    }
-
-    .healthy {
-        background: #ECFDF5;
-        border: 1px solid #10B981;
-        color: #065F46;
-    }
-
-    .risk {
-        background: #FFF7ED;
-        border: 1px solid #F97316;
-        color: #9A3412;
-    }
-
-    .disclaimer {
-        font-size: 0.82rem;
-        color: #64748B;
-        margin-top: 8px;
-    }
-
-    section[data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #E2E8F0;
-    }
-
-    section[data-testid="stSidebar"] * {
-        color: #0F172A !important;
-    }
-
-    div[data-testid="stMetric"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        padding: 16px;
         border-radius: 16px;
-        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+        padding: 18px;
+        margin-top: 12px;
+        font-size: 1.05rem;
     }
-
-    .stButton > button {
-        background-color: #0F766E;
-        color: white;
-        border-radius: 12px;
-        border: none;
-        padding: 0.65rem 1.2rem;
-        font-weight: 700;
+    .healthy {
+        background: #ecfdf5;
+        border: 1px solid #10b981;
+        color: #065f46;
     }
-
-    .stButton > button:hover {
-        background-color: #115E59;
-        color: white;
+    .risk {
+        background: #fff7ed;
+        border: 1px solid #f97316;
+        color: #9a3412;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-
-@st.cache_data(show_spinner="Loading dataset...")
-def load_data():
+@st.cache_data
+def load_data() -> pd.DataFrame:
     df = pd.read_csv(DATA_PATH)
-
     df["Physical_Activity_Hours"] = df["Physical_Activity"] / 60
-
     df["Lifestyle_Balance"] = (
-        df["Study_Hours"]
-        + df["Physical_Activity_Hours"]
-        - df["Social_Media_Hours"]
+        df["Study_Hours"] + df["Physical_Activity_Hours"] - df["Social_Media_Hours"]
     )
-
-    df["Productive_Hours"] = (
-        df["Study_Hours"]
-        + df["Physical_Activity_Hours"]
-    )
-
-    df["Stress_Study"] = (
-        df["Stress_Level"]
-        * df["Study_Hours"]
-    )
-
+    df["Productive_Hours"] = df["Study_Hours"] + df["Physical_Activity_Hours"]
+    df["Stress_Study"] = df["Stress_Level"] * df["Study_Hours"]
     return df
 
+@st.cache_resource
+def load_model(model_file: str):
+    return joblib.load(APP_DIR / model_file)
 
 @st.cache_data
-def load_results():
-    if RESULTS_PATH.exists():
-        return pd.read_csv(RESULTS_PATH)
+def load_metrics() -> pd.DataFrame:
+    if METRICS_PATH.exists():
+        with open(METRICS_PATH, "r", encoding="utf-8") as f:
+            metrics = json.load(f)
+        return pd.DataFrame(metrics).drop(columns=["Confusion Matrix"], errors="ignore")
+    return pd.DataFrame()
 
-    return pd.DataFrame({
-        "Model": [
-            "Logistic Regression",
-            "Random Forest",
-            "Logistic Regression + PCA"
-        ],
-        "Accuracy": [0.618, 0.735, 0.618],
-        "Precision": [0.162, 0.217, 0.162],
-       
+
+def make_input_row(
+    age: int,
+    gender: str,
+    department: str,
+    cgpa: float,
+    sleep_duration: float,
+    study_hours: float,
+    social_media_hours: float,
+    physical_activity_minutes: float,
+    stress_level: int,
+) -> pd.DataFrame:
+    physical_activity_hours = physical_activity_minutes / 60
+    lifestyle_balance = study_hours + physical_activity_hours - social_media_hours
+    productive_hours = study_hours + physical_activity_hours
+    stress_study = stress_level * study_hours
+
+    return pd.DataFrame(
+        [{
+            "Age": age,
+            "Gender": gender,
+            "Department": department,
+            "CGPA": cgpa,
+            "Sleep_Duration": sleep_duration,
+            "Study_Hours": study_hours,
+            "Social_Media_Hours": social_media_hours,
+            "Stress_Level": stress_level,
+            "Physical_Activity_Hours": physical_activity_hours,
+            "Lifestyle_Balance": lifestyle_balance,
+            "Productive_Hours": productive_hours,
+            "Stress_Study": stress_study,
+        }]
+    )
+
+
+def prediction_label(prediction: int) -> str:
+    return "Probable Depression" if prediction == 1 else "Healthy"
+
+
+df = load_data()
+metrics_df = load_metrics()
+
+st.sidebar.title("Navigation")
+page = st.sidebar.radio(
+    "Go to",
+    ["Home", "Dataset Overview", "EDA", "Model Results", "Prediction", "About"],
+)
+
+if page == "Home":
+    st.markdown('<div class="main-title">🎓 Student Depression Prediction</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="subtitle">An interactive machine learning app for predicting probable student depression based on lifestyle and academic factors.</div>',
+        unsafe_allow_html=True,
+    )
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Rows", f"{df.shape[0]:,}")
+    c2.metric("Columns", f"{df.shape[1]:,}")
+    c3.metric("Target", "Depression")
+    c4.metric("Best Model", "Random Forest")
+
+    st.subheader("Project Workflow")
+    st.write(
+        "The project includes data loading, EDA, feature engineering, preprocessing, PCA, model training, evaluation, and deployment using Streamlit."
+    )
+
+    st.subheader("Models Available")
+    st.write("Users can choose one of three trained models in the Prediction page:")
+    st.markdown("- Random Forest (selected as the best model)\n- Logistic Regression\n- Logistic Regression + PCA")
+
+elif page == "Dataset Overview":
+    st.title("📊 Dataset Overview")
+    st.write("Preview of the dataset after feature engineering.")
+    st.dataframe(df.head(20), use_container_width=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Dataset Shape")
+        st.write(f"Rows: **{df.shape[0]:,}**")
+        st.write(f"Columns: **{df.shape[1]:,}**")
+    with col2:
+        st.subheader("Missing Values")
+        missing = df.isnull().sum().sum()
+        st.write(f"Total missing values: **{missing}**")
+        st.write(f"Duplicated rows: **{df.duplicated().sum()}**")
+
+    st.subheader("Summary Statistics")
+    st.dataframe(df.describe(), use_container_width=True)
+
+elif page == "EDA":
+    st.title("📈 Exploratory Data Analysis")
+
+    st.subheader("Target Distribution")
+    fig = px.histogram(df, x="Depression", color="Depression", title="Distribution of Depression Status")
+    st.plotly_chart(fig, use_container_width=True)
+    st.info("The target variable is imbalanced, so model evaluation should rely on Recall, F1-score, and ROC-AUC in addition to Accuracy.")
+
+    st.subheader("Feature Distribution")
+    numeric_options = [
+        "Age", "CGPA", "Sleep_Duration", "Study_Hours", "Social_Media_Hours",
+        "Physical_Activity_Hours", "Stress_Level", "Lifestyle_Balance",
+        "Productive_Hours", "Stress_Study",
+    ]
+    selected_feature = st.selectbox("Choose a numerical feature", numeric_options)
+    fig = px.histogram(df, x=selected_feature, nbins=30, title=f"Distribution of {selected_feature}", marginal="box")
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("Feature by Depression Status")
+    compare_feature = st.selectbox("Choose feature to compare with Depression", numeric_options, index=1)
+    fig = px.box(df, x="Depression", y=compare_feature, color="Depression", title=f"{compare_feature} by Depression Status")
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("Categorical Analysis")
+    cat_feature = st.selectbox("Choose categorical feature", ["Gender", "Department"])
+    fig = px.histogram(df, x=cat_feature, color="Depression", barmode="group", title=f"Depression Status by {cat_feature}")
+    st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("Correlation Heatmap")
+    corr_cols = [
+        "Age", "CGPA", "Sleep_Duration", "Study_Hours", "Social_Media_Hours",
+        "Physical_Activity_Hours", "Stress_Level", "Depression", "Lifestyle_Balance",
+        "Productive_Hours", "Stress_Study",
+    ]
+    corr_df = df[corr_cols].copy()
+    corr_df["Depression"] = corr_df["Depression"].astype(int)
+    fig = px.imshow(corr_df.corr(), text_auto=".2f", aspect="auto", title="Correlation Heatmap")
+    st.plotly_chart(fig, use_container_width=True)
+
+elif page == "Model Results":
+    st.title("🤖 Model Results")
+    st.write("The table below summarizes the performance of the trained models.")
+
+    if not metrics_df.empty:
+        st.dataframe(metrics_df, use_container_width=True)
+
+        melted = metrics_df.melt(
+            id_vars="Model",
+            value_vars=["Accuracy", "Precision", "Recall", "F1-score", "ROC-AUC"],
+            var_name="Metric",
+            value_name="Score",
+        )
+        fig = px.bar(melted, x="Model", y="Score", color="Metric", barmode="group", title="Model Comparison")
+        st.plotly_chart(fig, use_container_width=True)
+
+    st.success(
+        "Random Forest was selected as the final model because it achieved the best overall balance, including the highest F1-score and ROC-AUC in the final comparison."
+    )
+
+elif page == "Prediction":
+    st.title("🔮 Student Depression Prediction")
+    st.write("Enter student information and choose a model to generate a prediction.")
+
+    selected_model_name = st.selectbox("Choose Prediction Model", list(MODEL_FILES.keys()))
+    model = load_model(MODEL_FILES[selected_model_name])
+
+    with st.form("prediction_form"):
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            age = st.slider("Age", 18, 24, 21)
+            gender = st.selectbox("Gender", sorted(df["Gender"].unique()))
+            department = st.selectbox("Department", sorted(df["Department"].unique()))
+        with col2:
+            cgpa = st.slider("CGPA", 1.5, 4.0, 3.0, 0.01)
+            sleep_duration = st.slider("Sleep Duration (hours)", 3.0, 12.0, 7.0, 0.1)
+            study_hours = st.slider("Study Hours", 0.0, 13.0, 4.5, 0.1)
+        with col3:
+            social_media_hours = st.slider("Social Media Hours", 0.0, 10.0, 3.5, 0.1)
+            physical_activity_minutes = st.slider("Physical Activity (minutes)", 0, 150, 75)
+            stress_level = st.slider("Stress Level", 1, 10, 4)
+
+        submitted = st.form_submit_button("Predict")
+
+    if submitted:
+        input_data = make_input_row(
+            age, gender, department, cgpa, sleep_duration, study_hours,
+            social_media_hours, physical_activity_minutes, stress_level,
+        )
+
+        prediction = int(model.predict(input_data)[0])
+        probability = float(model.predict_proba(input_data)[0][1])
+        label = prediction_label(prediction)
+
+        st.subheader("Prediction Result")
+        st.metric("Selected Model", selected_model_name)
+        st.metric("Probability of Probable Depression", f"{probability:.2%}")
+
+        if prediction == 1:
+            st.markdown(
+                f'<div class="result-box risk"><b>Result:</b> {label}<br>This prediction suggests possible depression risk. This app is for educational purposes only and is not a medical diagnosis.</div>',
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f'<div class="result-box healthy"><b>Result:</b> {label}<br>The model predicts a lower probability of depression risk. This app is for educational purposes only and is not a medical diagnosis.</div>',
+                unsafe_allow_html=True,
+            )
+
+        with st.expander("Show input features used by the model"):
+            st.dataframe(input_data, use_container_width=True)
+
+elif page == "About":
+    st.title("ℹ️ About This App")
+    st.write(
+        "This Streamlit application was built from the Student Depression Prediction machine learning project. "
+        "It allows users to explore the dataset, view model results, and make predictions using one of three trained models."
+    )
+    st.warning("This application is for educational use only and should not be used as a medical diagnosis tool.")
