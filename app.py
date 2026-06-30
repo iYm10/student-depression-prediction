@@ -385,13 +385,11 @@ metrics_df = load_metrics()
 # =========================
 # Sidebar
 # =========================
-st.sidebar.markdown("# 🎓 Student Depression Prediction")
+st.sidebar.markdown("# Student Depression Prediction")
 
 st.sidebar.markdown(
 """
-AI-powered prediction system
-
-Using Machine Learning to estimate depression risk based on academic performance, lifestyle, and behavioral factors.
+Machine learning dashboard for predicting depression risk based on students' academic performance, lifestyle, and behavioral factors.
 """
 )
 
