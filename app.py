@@ -220,6 +220,40 @@ st.markdown(
         border-radius: 18px;
         overflow: hidden;
     }
+
+
+    .home-metric-card {
+        background: rgba(30, 41, 59, 0.86);
+        border: 1px solid rgba(148, 163, 184, 0.20);
+        border-radius: 20px;
+        padding: 22px 18px;
+        min-height: 150px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+        overflow: visible !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .home-metric-title {
+        color: #cbd5e1 !important;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 14px;
+        white-space: nowrap;
+    }
+
+    .home-metric-value {
+        color: #ffffff !important;
+        font-size: clamp(24px, 2.2vw, 36px);
+        font-weight: 900;
+        line-height: 1.15;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        word-break: normal;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -281,37 +315,12 @@ def card(icon: str, title: str, text: str):
     )
 
 
-def metric_card(title: str, value: str):
+def home_metric_card(title: str, value: str):
     st.markdown(
         f"""
-        <div style="
-            background: rgba(30,41,59,0.86);
-            border: 1px solid rgba(148,163,184,0.20);
-            border-radius: 20px;
-            padding: 22px;
-            min-height: 145px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.22);
-            overflow: visible;
-        ">
-            <div style="
-                color: #cbd5e1;
-                font-size: 18px;
-                font-weight: 700;
-                margin-bottom: 15px;
-            ">
-                {title}
-            </div>
-
-            <div style="
-                color: #ffffff;
-                font-size: 34px;
-                font-weight: 900;
-                line-height: 1.2;
-                white-space: normal;
-                word-break: break-word;
-            ">
-                {value}
-            </div>
+        <div class="home-metric-card">
+            <div class="home-metric-title">{title}</div>
+            <div class="home-metric-value">{value}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -407,13 +416,13 @@ if page == "🏠 Home":
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        metric_card("Rows", f"{df.shape[0]:,}")
+        home_metric_card("Rows", f"{df.shape[0]:,}")
     with c2:
-        metric_card("Columns", str(df.shape[1]))
+        home_metric_card("Columns", f"{df.shape[1]}")
     with c3:
-        metric_card("Target", "Depression")
+        home_metric_card("Target", "Depression")
     with c4:
-        metric_card("Best Model", "Random Forest")
+        home_metric_card("Best Model", "Random Forest")
 
     st.markdown('<div class="section-title">Project Highlights</div>', unsafe_allow_html=True)
     h1, h2, h3 = st.columns(3)
